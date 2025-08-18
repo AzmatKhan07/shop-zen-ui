@@ -103,6 +103,101 @@ export default function POS() {
     setCustomerDiscount(0);
   };
 
+  const printReceipt = () => {
+    const receiptContent = `
+      <div style="font-family: monospace; max-width: 300px; margin: 0 auto; padding: 20px;">
+        <div style="text-align: center; margin-bottom: 20px;">
+          <h2 style="margin: 0; font-size: 24px;">ShopZen</h2>
+          <p style="margin: 5px 0;">Mobile Shop Management</p>
+          <p style="margin: 5px 0;">Date: ${new Date().toLocaleDateString()}</p>
+          <p style="margin: 5px 0;">Time: ${new Date().toLocaleTimeString()}</p>
+          <hr style="border: 1px dashed #000; margin: 10px 0;">
+        </div>
+        
+        <div style="margin-bottom: 20px;">
+          ${cart.map(item => {
+            const itemTotal = item.price * item.quantity;
+            const itemDiscount = itemTotal * (item.discount / 100);
+            const finalPrice = itemTotal - itemDiscount;
+            return `
+              <div style="margin-bottom: 10px;">
+                <div style="font-weight: bold;">${item.name}</div>
+                <div style="display: flex; justify-content: space-between;">
+                  <span>${item.quantity} x $${item.price.toFixed(2)}</span>
+                  <span>$${finalPrice.toFixed(2)}</span>
+                </div>
+                ${item.discount > 0 ? `<div style="font-size: 12px; color: #666;">Discount: ${item.discount}%</div>` : ''}
+              </div>
+            `;
+          }).join('')}
+        </div>
+        
+        <hr style="border: 1px dashed #000; margin: 10px 0;">
+        
+        <div style="margin-bottom: 20px;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+            <span>Subtotal:</span>
+            <span>$${subtotal.toFixed(2)}</span>
+          </div>
+          ${customerDiscount > 0 ? `
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px; color: #666;">
+              <span>Discount (${customerDiscount}%):</span>
+              <span>-$${globalDiscount.toFixed(2)}</span>
+            </div>
+          ` : ''}
+          <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+            <span>Tax (${taxRate}%):</span>
+            <span>$${tax.toFixed(2)}</span>
+          </div>
+          <hr style="border: 1px solid #000; margin: 10px 0;">
+          <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 18px;">
+            <span>TOTAL:</span>
+            <span>$${grandTotal.toFixed(2)}</span>
+          </div>
+        </div>
+        
+        <div style="text-align: center; margin-top: 20px;">
+          <p style="margin: 5px 0;">Thank you for your business!</p>
+          <p style="margin: 5px 0; font-size: 12px;">Visit us again soon</p>
+        </div>
+      </div>
+    `;
+
+    const printWindow = window.open('', '_blank', 'width=300,height=600');
+    if (printWindow) {
+      printWindow.document.write(`
+        <html>
+          <head>
+            <title>Receipt</title>
+            <style>
+              @media print {
+                body { margin: 0; padding: 0; }
+                @page { size: 80mm auto; margin: 0; }
+              }
+              body { 
+                font-family: 'Courier New', monospace; 
+                font-size: 12px; 
+                line-height: 1.4;
+              }
+            </style>
+          </head>
+          <body>
+            ${receiptContent}
+            <script>
+              window.onload = function() {
+                window.print();
+                window.onafterprint = function() {
+                  window.close();
+                };
+              };
+            </script>
+          </body>
+        </html>
+      `);
+      printWindow.document.close();
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Page Header */}
@@ -358,7 +453,7 @@ export default function POS() {
               <CardTitle className="text-lg">Actions</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
-              <Button className="w-full" variant="outline" disabled={cart.length === 0}>
+              <Button className="w-full" variant="outline" disabled={cart.length === 0} onClick={printReceipt}>
                 <Receipt className="mr-2 h-4 w-4" />
                 Print Receipt
               </Button>
