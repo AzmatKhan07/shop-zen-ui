@@ -9,6 +9,9 @@ import Items from "./pages/Items";
 import Suppliers from "./pages/Suppliers";
 import Categories from "./pages/Categories";
 import POS from "./pages/POS";
+import Customers from "./pages/Customers";
+import Repairs from "./pages/Repairs";
+import Purchases from "./pages/Purchases";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -25,6 +28,9 @@ const App = () => (
             <Route path="items" element={<Items />} />
             <Route path="suppliers" element={<Suppliers />} />
             <Route path="categories" element={<Categories />} />
+            <Route path="customers" element={<Customers />} />
+            <Route path="repairs" element={<Repairs />} />
+            <Route path="purchases" element={<Purchases />} />
             <Route path="pos" element={<POS />} />
           </Route>
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
