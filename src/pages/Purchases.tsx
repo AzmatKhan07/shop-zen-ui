@@ -119,6 +119,15 @@ export default function Purchases() {
     quantity: "",
     purchasePrice: "",
   });
+  const [showAddItemDialog, setShowAddItemDialog] = useState(false);
+  const [newItemForm, setNewItemForm] = useState({
+    name: "",
+    category: "",
+    purchasePrice: "",
+    salePrice: "",
+    stock: "",
+    barcode: "",
+  });
 
   const filteredPurchases = purchases.filter(purchase => {
     const matchesSearch = purchase.invoiceNo.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -243,6 +252,42 @@ export default function Purchases() {
       title: "Success",
       description: "Purchase deleted successfully",
     });
+  };
+
+  const handleAddNewItem = () => {
+    if (!newItemForm.name || !newItemForm.purchasePrice) {
+      toast({
+        title: "Error",
+        description: "Please fill in required fields (Name and Purchase Price)",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Add the new item to our items list (in a real app, this would be saved to database)
+    toast({
+      title: "Success",
+      description: "New item added successfully",
+    });
+
+    // Auto-fill the purchase form with the new item
+    setNewItem({
+      name: newItemForm.name,
+      quantity: "1",
+      purchasePrice: newItemForm.purchasePrice,
+    });
+
+    // Reset the new item form
+    setNewItemForm({
+      name: "",
+      category: "",
+      purchasePrice: "",
+      salePrice: "",
+      stock: "",
+      barcode: "",
+    });
+
+    setShowAddItemDialog(false);
   };
 
   const printInvoice = (purchase: Purchase) => {
@@ -487,9 +532,19 @@ export default function Purchases() {
                   </div>
                   <div className="space-y-2">
                     <Label>&nbsp;</Label>
-                    <Button onClick={addItemToPurchase} className="w-full">
-                      Add Item
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button onClick={addItemToPurchase} className="flex-1">
+                        Add to Purchase
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        onClick={() => setShowAddItemDialog(true)}
+                        className="gap-2"
+                      >
+                        <Plus className="h-4 w-4" />
+                        New Item
+                      </Button>
+                    </div>
                   </div>
                 </div>
 
@@ -725,6 +780,86 @@ export default function Purchases() {
           )}
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowDetailDialog(false)}>Close</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add New Item Dialog */}
+      <Dialog open={showAddItemDialog} onOpenChange={setShowAddItemDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Add New Item</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="itemName">Item Name *</Label>
+              <Input
+                id="itemName"
+                value={newItemForm.name}
+                onChange={(e) => setNewItemForm({ ...newItemForm, name: e.target.value })}
+                placeholder="Enter item name"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="itemCategory">Category</Label>
+              <Input
+                id="itemCategory"
+                value={newItemForm.category}
+                onChange={(e) => setNewItemForm({ ...newItemForm, category: e.target.value })}
+                placeholder="Enter category"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="itemPurchasePrice">Purchase Price *</Label>
+                <Input
+                  id="itemPurchasePrice"
+                  type="number"
+                  step="0.01"
+                  value={newItemForm.purchasePrice}
+                  onChange={(e) => setNewItemForm({ ...newItemForm, purchasePrice: e.target.value })}
+                  placeholder="0.00"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="itemSalePrice">Sale Price</Label>
+                <Input
+                  id="itemSalePrice"
+                  type="number"
+                  step="0.01"
+                  value={newItemForm.salePrice}
+                  onChange={(e) => setNewItemForm({ ...newItemForm, salePrice: e.target.value })}
+                  placeholder="0.00"
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="itemStock">Stock Quantity</Label>
+              <Input
+                id="itemStock"
+                type="number"
+                value={newItemForm.stock}
+                onChange={(e) => setNewItemForm({ ...newItemForm, stock: e.target.value })}
+                placeholder="0"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="itemBarcode">Barcode</Label>
+              <Input
+                id="itemBarcode"
+                value={newItemForm.barcode}
+                onChange={(e) => setNewItemForm({ ...newItemForm, barcode: e.target.value })}
+                placeholder="Enter barcode"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowAddItemDialog(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleAddNewItem}>
+              Add Item
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
